@@ -21,11 +21,13 @@ export class PollsController {
 
   @Post('/rejoin')
   async rejoin() {
-    Logger.log('In rejoin!');
+    const result = await this.pollsService.rejoinPoll({
+      name: '',
+      pollID: '',
+      userID: '',
+    });
     // TODO - add implementation for extracting user from token
 
-    return {
-      message: 'rejoin endpoint',
-    };
+    return result;
   }
 }

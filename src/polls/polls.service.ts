@@ -1,18 +1,26 @@
 import { Injectable } from '@nestjs/common';
+import { createPollID, createUserID } from '../ids';
 import {
   CreatePollFields,
   JoinPollFields,
   RejoinPollFields,
-} from './polls.types';
+} from './types/polls.types';
 
 @Injectable()
 export class PollsService {
   async createPoll(fields: CreatePollFields) {
-    return fields;
+    const pollID = createPollID();
+    const userID = createUserID();
+    return {
+      ...fields,
+      userID,
+      pollID,
+    };
   }
 
   async joinPoll(fields: JoinPollFields) {
-    return fields;
+    const userID = createUserID();
+    return { ...fields, userID };
   }
 
   async rejoinPoll(fields: RejoinPollFields) {
