@@ -15,6 +15,19 @@ export type RejoinPollFields = {
   name: string;
 };
 
+export type CreatePollData = {
+  pollID: string;
+  topic: string;
+  votesPerVoter: number;
+  userID: string;
+};
+
+export type AddParticipantData = {
+  pollID: string;
+  userID: string;
+  name: string;
+};
+
 export type Participants = {
   [participantID: string]: string;
 };
@@ -46,8 +59,8 @@ export type Poll = {
   votesPerVoter: number;
   participants: Participants;
   adminID: string;
-  nominations: Nominations;
-  rankings: Rankings;
-  results: Results;
-  hasStarted: boolean;
+  // nominations: Nominations;
+  // rankings: Rankings;
+  // results: Results;
+  // hasStarted: boolean;
 };
