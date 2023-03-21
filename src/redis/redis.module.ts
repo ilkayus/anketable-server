@@ -2,7 +2,7 @@ import { DynamicModule, FactoryProvider, ModuleMetadata } from '@nestjs/common';
 import { Module } from '@nestjs/common';
 import IORedis, { Redis, RedisOptions } from 'ioredis';
 
-export const IORedisKeys = 'IORedis';
+export const IORedisKey = 'IORedis';
 
 type RedisModuleOptions = {
   connectionOptions: RedisOptions;
@@ -24,7 +24,7 @@ export class RedisModule {
     inject,
   }: RedisAsyncModuleOptions): Promise<DynamicModule> {
     const redisProvider = {
-      provide: IORedisKeys,
+      provide: IORedisKey,
       useFactory: async (...args) => {
         const { connectionOptions, onClientReady } = await useFactory(...args);
         const client = await new IORedis(connectionOptions);
