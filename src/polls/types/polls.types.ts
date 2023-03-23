@@ -65,10 +65,10 @@ export type Poll = {
   // hasStarted: boolean;
 };
 
-type AuthPayload = {
+export type PollAuthPayload = {
   userID: string;
   pollID: string;
   name: string;
 };
 
-export type PollRequestWithAuth = Request & AuthPayload;
+export type PollRequestWithAuth = Request & PollAuthPayload;
