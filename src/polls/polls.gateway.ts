@@ -59,11 +59,25 @@ export class PollsGateway
 
   async handleDisconnect(client: SocketWithAuth) {
     const sockets = this.io.sockets;
+    const { pollID, userID } = client;
+    const updatedPoll = await this.pollsService.removeParticipant(
+      pollID,
+      userID,
+    );
 
+    const roomName = client.pollID;
+    const clientCount = this.io.adapter.rooms.get(roomName).size;
     this.logger.log(`Disconnected socket id: ${client.id}`);
     this.logger.debug(`Number of connected sockets: ${sockets.size}`);
+    this.logger.debug(
+      `Total clients connected to room '${roomName}': ${clientCount}`,
+    );
 
-    // TODO - remove client from poll and send `participants_updated` event to remaining clients
+    // updatedPoll could be undefined if the the poll already started
+    // in this case, the socket is disconnect, but no the poll state
+    if (updatedPoll) {
+      this.io.to(pollID).emit('poll_updated', updatedPoll);
+    }
   }
 
   @SubscribeMessage('test')

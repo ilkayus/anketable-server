@@ -62,8 +62,19 @@ export type Poll = {
   // nominations: Nominations;
   // rankings: Rankings;
   // results: Results;
-  // hasStarted: boolean;
+  hasStarted: boolean;
 };
+
+export interface AddParticipantFields {
+  pollID: string;
+  userID: string;
+  name: string;
+}
+
+export interface RemoveParticipantData {
+  pollID: string;
+  userID: string;
+}
 
 export type PollAuthPayload = {
   userID: string;
