@@ -6,6 +6,7 @@ import { IORedisKey } from '../redis/redis.module';
 import {
   AddNominationData,
   AddParticipantData,
+  AddParticipantRankingsData,
   CreatePollData,
   Poll,
 } from './types/polls.types';
@@ -35,6 +36,7 @@ export class PollsRepository {
       votesPerVoter,
       participants: {},
       nominations: {},
+      rankings: {},
       adminID: userID,
       hasStarted: false,
     };
@@ -81,6 +83,28 @@ export class PollsRepository {
       this.logger.error(`Failed to get pollID ${pollID}`);
       throw new InternalServerErrorException(
         `Failed to get poll with: ${pollID}`,
+      );
+    }
+  }
+
+  async startPoll(pollID: string): Promise<Poll> {
+    this.logger.log(`setting hasStarted for poll: ${pollID}`);
+
+    const key = `polls:${pollID}`;
+
+    try {
+      await this.redisClient.call(
+        'JSON.SET',
+        key,
+        '.hasStarted',
+        JSON.stringify(true),
+      );
+
+      return this.getPoll(pollID);
+    } catch (e) {
+      this.logger.error(`Failed set hasStarted for poll: ${pollID}`, e);
+      throw new InternalServerErrorException(
+        'The was an error starting the poll',
       );
     }
   }
@@ -187,6 +211,39 @@ export class PollsRepository {
 
       throw new InternalServerErrorException(
         `Failed to remove nominationID: ${nominationID} from poll: ${pollID}`,
+      );
+    }
+  }
+
+  async addParticipantRankings({
+    pollID,
+    userID,
+    rankings,
+  }: AddParticipantRankingsData): Promise<Poll> {
+    this.logger.log(
+      `Attempting to add rankings for userID/name: ${userID} to pollID: ${pollID}`,
+      rankings,
+    );
+
+    const key = `polls:${pollID}`;
+    const rankingsPath = `.rankings.${userID}`;
+
+    try {
+      await this.redisClient.call(
+        'JSON.SET',
+        key,
+        rankingsPath,
+        JSON.stringify(rankings),
+      );
+
+      return this.getPoll(pollID);
+    } catch (e) {
+      this.logger.error(
+        `Failed to add a rankings for userID/name: ${userID}/ to pollID: ${pollID}`,
+        rankings,
+      );
+      throw new InternalServerErrorException(
+        'There was an error starting the poll',
       );
     }
   }

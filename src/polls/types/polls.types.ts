@@ -60,7 +60,7 @@ export type Poll = {
   participants: Participants;
   adminID: string;
   nominations: Nominations;
-  // rankings: Rankings;
+  rankings: Rankings;
   // results: Results;
   hasStarted: boolean;
 };
@@ -68,6 +68,12 @@ export type AddParticipantFields = {
   pollID: string;
   userID: string;
   name: string;
+};
+
+export type AddParticipantRankingsData = {
+  pollID: string;
+  userID: string;
+  rankings: string[];
 };
 
 export type AddNominationData = {
@@ -80,6 +86,12 @@ export type AddNominationFields = {
   pollID: string;
   userID: string;
   text: string;
+};
+
+export type SubmitRankingsFields = {
+  pollID: string;
+  userID: string;
+  rankings: string[];
 };
 
 export type PollAuthPayload = {
