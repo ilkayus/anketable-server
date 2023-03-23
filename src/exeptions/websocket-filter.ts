@@ -7,6 +7,7 @@ import {
 import { SocketWithAuth } from '../websocket/socket.types';
 import {
   WsBadRequestException,
+  WsTypeException,
   WsUnknownException,
 } from './websocket-exeptions';
 
@@ -22,6 +23,11 @@ export class WsCatchAllFilter implements ExceptionFilter {
 
       const wsException = new WsBadRequestException(exceptionMessage);
       socket.emit('exception', wsException.getError());
+      return;
+    }
+
+    if (exception instanceof WsTypeException) {
+      socket.emit('exception', exception.getError());
       return;
     }
 

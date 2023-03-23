@@ -48,6 +48,10 @@ export class PollsService {
     };
   }
 
+  async getPoll(pollID: string): Promise<Poll> {
+    return this.pollsRepository.getPoll(pollID);
+  }
+
   async joinPoll(poll: JoinPollFields) {
     const userID = createUserID();
 

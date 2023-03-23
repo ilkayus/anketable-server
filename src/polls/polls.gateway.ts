@@ -1,4 +1,10 @@
-import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Logger,
+  UseFilters,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   OnGatewayInit,
   WebSocketGateway,
@@ -6,12 +12,14 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
   SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { PollsService } from './polls.service';
 import { Namespace } from 'socket.io';
 import { SocketWithAuth } from '../websocket/socket.types';
-import { WsBadRequestException } from '../exeptions/websocket-exeptions';
 import { WsCatchAllFilter } from '../exeptions/websocket-filter';
+import { GatewayAdminGuard } from './guards/polls-gateway.guard';
 
 @UsePipes(new ValidationPipe())
 @UseFilters(new WsCatchAllFilter())
@@ -40,13 +48,13 @@ export class PollsGateway
     const roomName = client.pollID;
     await client.join(roomName);
 
-    const connectedClients = this.io.adapter.rooms.get(roomName).size;
+    const clientCount = this.io.adapter.rooms?.get(roomName)?.size ?? 0;
 
     this.logger.debug(
       `userID: ${client.userID} joined room with name: ${roomName}`,
     );
     this.logger.debug(
-      `Total clients connected to room '${roomName}': ${connectedClients}`,
+      `Total clients connected to room '${roomName}': ${clientCount}`,
     );
     const updatedPoll = await this.pollsService.addParticipant({
       pollID: client.pollID,
@@ -66,7 +74,7 @@ export class PollsGateway
     );
 
     const roomName = client.pollID;
-    const clientCount = this.io.adapter.rooms.get(roomName).size;
+    const clientCount = this.io.adapter.rooms?.get(roomName)?.size ?? 0;
     this.logger.log(`Disconnected socket id: ${client.id}`);
     this.logger.debug(`Number of connected sockets: ${sockets.size}`);
     this.logger.debug(
@@ -80,8 +88,21 @@ export class PollsGateway
     }
   }
 
-  @SubscribeMessage('test')
-  async test() {
-    throw new Error('Invalid data');
+  @UseGuards(GatewayAdminGuard)
+  @SubscribeMessage('remove_participant')
+  async removeParticipant(
+    @MessageBody('id') id: string,
+    @ConnectedSocket() client: SocketWithAuth,
+  ) {
+    this.logger.debug(
+      `Attempting to remove participant ${id} from poll ${client.pollID}`,
+    );
+
+    const updatedPoll = await this.pollsService.removeParticipant(
+      client.pollID,
+      id,
+    );
+    if (updatedPoll)
+      this.io.to(client.pollID).emit('poll_updated', updatedPoll);
   }
 }

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { CreatePollDto } from './dto/create-poll.dto';
 import { JoinPollDto } from './dto/join-poll.dto';
-import { PollsGuard } from './polls.guard';
+import { PollsGuard } from './guards/polls-controller.guard';
 import { PollsService } from './polls.service';
 import { PollRequestWithAuth } from './types/polls.types';
 
