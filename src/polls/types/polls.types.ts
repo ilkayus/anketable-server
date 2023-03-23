@@ -64,3 +64,11 @@ export type Poll = {
   // results: Results;
   // hasStarted: boolean;
 };
+
+type AuthPayload = {
+  userID: string;
+  pollID: string;
+  name: string;
+};
+
+export type PollRequestWithAuth = Request & AuthPayload;
