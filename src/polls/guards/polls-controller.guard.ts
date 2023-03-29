@@ -14,7 +14,7 @@ export class PollsGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const { accessToken } = request.body;
+    const accessToken = request.headers.authorization.split(' ')[1];
 
     if (!accessToken) {
       throw new ForbiddenException('No authorization token provided');
