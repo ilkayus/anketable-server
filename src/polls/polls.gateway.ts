@@ -20,7 +20,12 @@ import { Namespace } from 'socket.io';
 import { SocketWithAuth } from '../websocket/socket.types';
 import { WsCatchAllFilter } from '../exeptions/websocket-filter';
 import { GatewayAdminGuard } from './guards/polls-gateway.guard';
-import { NominationDto } from './dto/nomination-poll.dto';
+import {
+  NominationDto,
+  RemoveNominationDto,
+  RemoveParticipantDto,
+  SubmitRankingsDto,
+} from './dto/gateway-poll.dto';
 
 @UsePipes(new ValidationPipe())
 @UseFilters(new WsCatchAllFilter())
@@ -92,16 +97,16 @@ export class PollsGateway
   @UseGuards(GatewayAdminGuard)
   @SubscribeMessage('remove_participant')
   async removeParticipant(
-    @MessageBody('id') id: string,
+    @MessageBody() data: RemoveParticipantDto,
     @ConnectedSocket() client: SocketWithAuth,
   ) {
     this.logger.debug(
-      `Attempting to remove participant ${id} from poll ${client.pollID}`,
+      `Attempting to remove participant ${data.id} from poll ${client.pollID}`,
     );
 
     const updatedPoll = await this.pollsService.removeParticipant(
       client.pollID,
-      id,
+      data.id,
     );
     if (updatedPoll)
       this.io.to(client.pollID).emit('poll_updated', updatedPoll);
@@ -109,17 +114,17 @@ export class PollsGateway
 
   @SubscribeMessage('nominate')
   async nominate(
-    @MessageBody() nomination: NominationDto,
+    @MessageBody() data: NominationDto,
     @ConnectedSocket() client: SocketWithAuth,
   ): Promise<void> {
     this.logger.debug(
-      `Attempting to add nomination for user ${client.userID} to poll ${client.pollID}\n${nomination.text}`,
+      `Attempting to add nomination for user ${client.userID} to poll ${client.pollID}\n${data.text}`,
     );
 
     const updatedPoll = await this.pollsService.addNomination({
       pollID: client.pollID,
       userID: client.userID,
-      text: nomination.text,
+      text: data.text,
     });
 
     this.io.to(client.pollID).emit('poll_updated', updatedPoll);
@@ -128,16 +133,16 @@ export class PollsGateway
   @UseGuards(GatewayAdminGuard)
   @SubscribeMessage('remove_nomination')
   async removeNomination(
-    @MessageBody('id') nominationID: string,
+    @MessageBody() data: RemoveNominationDto,
     @ConnectedSocket() client: SocketWithAuth,
   ): Promise<void> {
     this.logger.debug(
-      `Attempting to remove nomination ${nominationID} from poll ${client.pollID}`,
+      `Attempting to remove nomination ${data.id} from poll ${client.pollID}`,
     );
 
     const updatedPoll = await this.pollsService.removeNomination(
       client.pollID,
-      nominationID,
+      data.id,
     );
 
     this.io.to(client.pollID).emit('poll_updated', updatedPoll);
@@ -156,7 +161,7 @@ export class PollsGateway
   @SubscribeMessage('submit_rankings')
   async submitRankings(
     @ConnectedSocket() client: SocketWithAuth,
-    @MessageBody('rankings') rankings: string[],
+    @MessageBody() data: SubmitRankingsDto,
   ): Promise<void> {
     this.logger.debug(
       `Submitting votes for user: ${client.userID} belonging to pollID: "${client.pollID}"`,
@@ -165,7 +170,7 @@ export class PollsGateway
     const updatedPoll = await this.pollsService.submitRankings({
       pollID: client.pollID,
       userID: client.userID,
-      rankings,
+      rankings: data.rankings,
     });
 
     // an enhancement might be to not send ranking data to clients,
