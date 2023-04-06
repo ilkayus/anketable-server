@@ -14,14 +14,18 @@ export default (
   const votesArray: {
     [nominationID: string]: [number, number, number, number, number];
   } = {};
+  Object.keys(nominations).forEach((nomination) => {
+    votesArray[nomination] = [0, 0, 0, 0, 0];
+    scores[nomination] = 0;
+  });
   Object.values(rankings).forEach((userRankings) => {
     userRankings.forEach((nominationID, n) => {
       const voteValue = Math.pow(
         (votesPerVoter - 0.5 * n) / votesPerVoter,
         n + 1,
       );
-      votesArray[nominationID][n] = votesArray[nominationID][n] ?? 0 + 1;
-      scores[nominationID] = (scores[nominationID] ?? 0) + voteValue;
+      votesArray[nominationID][n] = votesArray[nominationID][n] + 1;
+      scores[nominationID] = scores[nominationID] + voteValue;
     });
   });
 
@@ -36,6 +40,5 @@ export default (
 
   // 3. Sort values by score in descending order
   results.sort((res1, res2) => res2.score - res1.score);
-
   return results;
 };
