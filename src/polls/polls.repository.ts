@@ -40,7 +40,9 @@ export class PollsRepository {
       rankings: {},
       results: [],
       adminID: userID,
+      showResults: false,
       hasStarted: false,
+      hasEnded: false,
     };
 
     this.logger.log(
@@ -107,6 +109,50 @@ export class PollsRepository {
       this.logger.error(`Failed set hasStarted for poll: ${pollID}`, e);
       throw new InternalServerErrorException(
         'The was an error starting the poll',
+      );
+    }
+  }
+
+  async endPoll(pollID: string): Promise<Poll> {
+    this.logger.log(`setting hasEnded for poll: ${pollID}`);
+
+    const key = `polls:${pollID}`;
+
+    try {
+      await this.redisClient.call(
+        'JSON.SET',
+        key,
+        '.hasEnded',
+        JSON.stringify(true),
+      );
+
+      return this.getPoll(pollID);
+    } catch (e) {
+      this.logger.error(`Failed set hasEnded for poll: ${pollID}`, e);
+      throw new InternalServerErrorException(
+        'The was an error starting the poll',
+      );
+    }
+  }
+
+  async showResults(pollID: string, showResults: boolean): Promise<Poll> {
+    this.logger.log(`setting showResults for poll: ${pollID}`);
+
+    const key = `polls:${pollID}`;
+
+    try {
+      await this.redisClient.call(
+        'JSON.SET',
+        key,
+        '.showResults',
+        JSON.stringify(showResults),
+      );
+
+      return this.getPoll(pollID);
+    } catch (e) {
+      this.logger.error(`Failed set showResults for poll: ${pollID}`, e);
+      throw new InternalServerErrorException(
+        'The was an error changing showResults value of the poll',
       );
     }
   }

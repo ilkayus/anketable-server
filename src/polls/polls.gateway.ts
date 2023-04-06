@@ -24,6 +24,7 @@ import {
   NominationDto,
   RemoveNominationDto,
   RemoveParticipantDto,
+  ShowResultsDto,
   SubmitRankingsDto,
 } from './dto/gateway-poll.dto';
 
@@ -158,6 +159,24 @@ export class PollsGateway
     this.io.to(client.pollID).emit('poll_updated', updatedPoll);
   }
 
+  @UseGuards(GatewayAdminGuard)
+  @SubscribeMessage('show_results')
+  async showResults(
+    @ConnectedSocket() client: SocketWithAuth,
+    @MessageBody() data: ShowResultsDto,
+  ): Promise<void> {
+    this.logger.debug(
+      `Attempting to show momentary results for poll: ${client.pollID}`,
+    );
+
+    const updatedPoll = await this.pollsService.showResults(
+      client.pollID,
+      data.showResults,
+    );
+
+    this.io.to(client.pollID).emit('poll_updated', updatedPoll);
+  }
+
   @SubscribeMessage('submit_rankings')
   async submitRankings(
     @ConnectedSocket() client: SocketWithAuth,
@@ -173,10 +192,6 @@ export class PollsGateway
       rankings: data.rankings,
     });
 
-    // an enhancement might be to not send ranking data to clients,
-    // but merely a list of the participants who have voted since another
-    // participant getting this data could lead to cheating
-    // we may add this while working on the client
     this.io.to(client.pollID).emit('poll_updated', updatedPoll);
   }
 
@@ -185,7 +200,9 @@ export class PollsGateway
   async closePoll(@ConnectedSocket() client: SocketWithAuth): Promise<void> {
     this.logger.debug(`Closing poll: ${client.pollID} and computing results`);
 
-    const updatedPoll = await this.pollsService.computeResults(client.pollID);
+    const updatedPoll = await this.pollsService.computeEndResults(
+      client.pollID,
+    );
 
     this.io.to(client.pollID).emit('poll_updated', updatedPoll);
   }

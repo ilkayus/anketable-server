@@ -27,3 +27,7 @@ export class SubmitRankingsDto {
   @IsArray()
   rankings: string[];
 }
+
+export class ShowResultsDto {
+  showResults: boolean;
+}

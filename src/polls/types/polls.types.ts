@@ -62,8 +62,10 @@ export type Poll = {
   adminID: string;
   nominations: Nominations;
   rankings: Rankings;
+  showResults: boolean;
   results: Results;
   hasStarted: boolean;
+  hasEnded: boolean;
 };
 export type AddParticipantFields = {
   pollID: string;
