@@ -11,14 +11,16 @@ export default (
   // to array index of rankings.
   // Accumulate score per nominationID
   const scores: { [nominationID: string]: number } = {};
-
+  const votesArray: {
+    [nominationID: string]: [number, number, number, number, number];
+  } = {};
   Object.values(rankings).forEach((userRankings) => {
     userRankings.forEach((nominationID, n) => {
       const voteValue = Math.pow(
         (votesPerVoter - 0.5 * n) / votesPerVoter,
         n + 1,
       );
-
+      votesArray[nominationID][n] = votesArray[nominationID][n] ?? 0 + 1;
       scores[nominationID] = (scores[nominationID] ?? 0) + voteValue;
     });
   });
@@ -29,6 +31,7 @@ export default (
     nominationID,
     nominationText: nominations[nominationID].text,
     score,
+    votes: votesArray[nominationID],
   }));
 
   // 3. Sort values by score in descending order

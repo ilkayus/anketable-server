@@ -19,7 +19,7 @@ export class SocketIOAdapter extends IoAdapter {
 
     const cors = {
       origin: [
-        `http://localhost:${clientPort}`,
+        `http://192.168.1.143:${clientPort}`,
         new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
       ],
     };

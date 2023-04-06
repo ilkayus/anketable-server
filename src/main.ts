@@ -22,11 +22,19 @@ async function bootstrap() {
   const port = configService.get('PORT') || 4000;
   const clientPort = parseInt(configService.get('CLIENT_PORT'));
 
+  // app.enableCors({
+  //   origin: [
+  //     `http://localhost:${clientPort}`,
+  //     new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+  //   ],
+  // });
+
   app.enableCors({
-    origin: [
-      `http://localhost:${clientPort}`,
-      new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
-    ],
+    origin: true,
+    allowedHeaders:
+      'Origin, X-Requested-With, Content-Type,Accept,Authorization',
+    methods: 'GET, POST, OPTIONS, PATCH, DELETE',
+    credentials: true,
   });
 
   app.useWebSocketAdapter(new SocketIOAdapter(app, configService));

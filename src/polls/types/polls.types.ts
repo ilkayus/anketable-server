@@ -51,6 +51,7 @@ export type Results = Array<{
   nominationID: NominationID;
   nominationText: string;
   score: number;
+  votes: [number, number, number, number, number];
 }>;
 
 export type Poll = {
