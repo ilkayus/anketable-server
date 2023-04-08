@@ -12,7 +12,13 @@ class SocketIOAdapter extends platform_socket_io_1.IoAdapter {
         this.logger = new common_1.Logger(SocketIOAdapter.name);
     }
     createIOServer(port, options) {
-        const optionsWithCORS = Object.assign({}, options);
+        const cors = {
+            origin: true,
+            allowedHeaders: 'Origin, X-Requested-With, Content-Type,Accept,Authorization',
+            methods: 'GET, POST, OPTIONS, PATCH, DELETE',
+            credentials: true,
+        };
+        const optionsWithCORS = Object.assign(Object.assign({}, options), { cors });
         const jwtService = this.app.get(jwt_1.JwtService);
         const server = super.createIOServer(port, optionsWithCORS);
         server.of('polls').use(createTokenMiddleware(jwtService, this.logger));
