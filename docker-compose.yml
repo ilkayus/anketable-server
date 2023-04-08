@@ -3,9 +3,18 @@ version: '3.8'
 services:
   redis:
     image: 'redislabs/rejson:2.0.0'
+    container_name: client
     ports:
       - '6379:6379'
     volumes:
       - 'redisdata:/data'
+
+  anketable:
+    image: 'anketable'
+    env_file:
+      - '.env'
+    ports:
+      - '4000:4000'
+
 volumes:
   redisdata:

@@ -15,22 +15,22 @@ export class SocketIOAdapter extends IoAdapter {
   }
 
   createIOServer(port: number, options?: ServerOptions) {
-    const clientPort = parseInt(this.configService.get('CLIENT_PORT'));
+    // const clientPort = parseInt(this.configService.get('CLIENT_PORT'));
 
-    const cors = {
-      origin: [
-        `http://192.168.1.143:${clientPort}`,
-        new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
-      ],
-    };
+    // const cors = {
+    //   origin: [
+    //     `http://192.168.1.143:${clientPort}`,
+    //     new RegExp(`/^http:\/\/192\.168\.1\.([1-9]|[1-9]\d):${clientPort}$/`),
+    //   ],
+    // };
 
-    this.logger.log('Configuring SocketIO server with custom CORS options', {
-      cors,
-    });
+    // this.logger.log('Configuring SocketIO server with custom CORS options', {
+    //   cors,
+    // });
 
     const optionsWithCORS: ServerOptions = {
       ...options,
-      cors,
+      // cors,
     };
 
     const jwtService = this.app.get(JwtService);
