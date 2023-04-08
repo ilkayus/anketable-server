@@ -131,7 +131,6 @@ export class PollsGateway
     this.io.to(client.pollID).emit('poll_updated', updatedPoll);
   }
 
-  @UseGuards(GatewayAdminGuard)
   @SubscribeMessage('remove_nomination')
   async removeNomination(
     @MessageBody() data: RemoveNominationDto,
